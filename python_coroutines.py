@@ -75,3 +75,45 @@ def doit2():
     return evaluate_loop(gen_exp_l(1000))
     ### also works:
     # return evaluate_loop(gen_exp_r(1000))
+
+
+def double(l):
+    if l:
+        return [l[0], l[0], *double(l[1:])]
+    else:
+        return []
+
+
+def inner_cont(head, cont):
+    yield cont.send([head, head, *(yield)])
+
+def double_coro(l, cont):
+    if l:
+        k = inner_cont(l[0], cont)
+        next(k)
+        yield from double_coro(l[1:], k)
+    else:
+        yield cont.send([])
+
+def list_returner_loop():
+    yield (yield), False, None
+
+def inner_cont_loop(head, cont):
+    yield [head, head, *(yield)], False, cont
+
+def double_coro_loop(l):
+    cont = list_returner_loop()
+    next(cont)
+    down = True
+
+    while True:
+        if down and l:
+            k = inner_cont_loop(l[0], cont)
+            next(k)
+            l, down, cont = l[1:], True, k
+        else:
+            l, down, cont = cont.send(l)
+            if cont is None:
+                return l
+
+double_coro_loop(list(range(1000)))
