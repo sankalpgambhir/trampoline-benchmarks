@@ -14,9 +14,11 @@ def execute[V](t: TailCall[V]): V =
     null.asInstanceOf[V]
 
 def double[A](l: List[A], k: List[A] => TailCall[List[A]]): TailCall[List[A]] =
-    l match
-        case Nil => k(Nil)
-        case x :: xs => TailCall2[List[A], List[A] => TailCall[List[A]], List[A]](double, xs, ys => TailCall1(k, x :: x :: ys))
+    if l.isEmpty then
+        TailCall1(k, Nil)
+    else
+        TailCall2[List[A], List[A] => TailCall[List[A]], List[A]](
+            double, l.tail, ys => TailCall1(k, l.head :: l.head :: ys))
 
 def time[A](f: () => A): Long =
     val start = System.currentTimeMillis
