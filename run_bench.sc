@@ -6,7 +6,9 @@ val haskellFile = "haskell-list.hs"
 val scalaLazyFile = "scala-lazy-list.sc"
 val scalaTailFile = "scala-tail-call.sc"
 val scalaListRevFile = "scala-list-rev.sc"
+val scalaDefuncFile = "scala-defunc.sc"
 val cppLinkedListFile = "cpp-linked-list-stupid.cpp"
+val pythonCoroutineFile = "python_coroutines.py"
 
 // output files
 val haskellOutputBase = haskellFile.takeWhile(_ != '.')
@@ -30,6 +32,9 @@ def cppBench(fileName: String, outName: String, opts: String = ""): String =
     Process(s"g++ -O3 $fileName -o $outName $opts").!!(ProcessLogger(_ => ()))
     Process(s"./$outName").!!
 
+def pyBench(fileName: String): String =
+    Process(s"python3 $fileName").!!(ProcessLogger(_ => ()))
+
 val benchmarks: Seq[(String, () => String)] =
     Seq(
         ("Haskell (stack script)", () => haskellScriptBench(haskellFile)),
@@ -38,7 +43,9 @@ val benchmarks: Seq[(String, () => String)] =
         ("Scala Lazy", () => scalaScriptBench(scalaLazyFile)),
         ("Scala Tail Call", () => scalaScriptBench(scalaTailFile)),
         ("Scala List TailRec Rev", () => scalaScriptBench(scalaListRevFile)),
-        ("C++ Linked List", () => cppBench(cppLinkedListFile, cppLinkedListOutputFile))
+        ("Scala Defunctionalized", () => scalaScriptBench(scalaDefuncFile)),
+        ("C++ Linked List", () => cppBench(cppLinkedListFile, cppLinkedListOutputFile)),
+        ("Python Coroutines", () => pyBench(pythonCoroutineFile)),
     )
 
 def bench(name: String, fun: () => String): String =

@@ -1,5 +1,7 @@
-# exp is either int or ('Add', exp, exp)
+import sys
+import time
 
+# exp is either int or ('Add', exp, exp)
 def gen_exp_r(n):
     e = 1
     for i in range(n):
@@ -116,4 +118,16 @@ def double_coro_loop(l):
             if cont is None:
                 return l
 
-double_coro_loop(list(range(1000)))
+runSize = int(1e4)
+
+def time_double_coro():
+    start = time.time_ns()
+    double_coro_loop(list(range(runSize)))
+    end = time.time_ns()
+    return int(end - start) // 1e6
+
+if __name__ == '__main__':
+    if len(sys.argv) > 0:
+        runSize = int(sys.argv[1])
+    times = [time_double_coro() for _ in range(10)]
+    print(f"Average time: ({runSize})", sum(times) / len(times), " ms")
